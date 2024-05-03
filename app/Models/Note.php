@@ -12,7 +12,7 @@ class Note extends Model
     protected $fillable = [
         'title',
         'annotation',
-        'password',
+        'user_id'
     ];
 
     public function user() : belongsTo {
