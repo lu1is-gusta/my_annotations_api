@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Models\User;
 
 class UserController extends Controller
 {
-    public function index(): Response //ver melhor sobre o type de funções
+    public function index(): JsonResponse 
     {
         $users = User::all();
         
@@ -22,9 +23,15 @@ class UserController extends Controller
         
     }
 
-    public function store(StoreUserRequest $request): array
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        
+        $users = User::create($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => "User Created successfully!",
+            'users' => $users
+        ], 200);
     }
 
     public function show($id): array
