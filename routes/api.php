@@ -10,7 +10,9 @@ use Laravel\Sanctum\Sanctum;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::resources([
-    'user' => UserController::class,
-    'note' => NoteController::class
-]);
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::resources([
+        'user' => UserController::class,
+        'note' => NoteController::class
+    ]);
+});
