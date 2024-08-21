@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreNoteRequest;
 use Illuminate\Http\JsonResponse;
 use App\Models\Note;
 
@@ -15,15 +15,10 @@ class NoteController extends Controller
         return response()->json([
             'status' => true,
             'notes' => $notes
-        ]);
+        ], 200);
     }
 
-    public function create(): array
-    {
-        
-    }
-
-    public function store(StoreNoteRequest $request): JsonResponse
+    public function create(StoreNoteRequest $request): JsonResponse
     {
         $note = Note::create($request->all());
 
@@ -31,25 +26,15 @@ class NoteController extends Controller
             'status' => true,
             'message' => "Note Created successfully!",
             'note' => $note
-        ], 200);
+        ], 201);
     }
 
-    public function show($id): array
-    {
-       
-    }
-
-    public function edit(): array
+    public function update($id)
     {
         
     }
 
-    public function update($id): array
-    {
-        
-    }
-
-    public function destroy($id): array
+    public function delete($id)
     {
         
     }
