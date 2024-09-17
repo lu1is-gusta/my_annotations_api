@@ -7,9 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\NoteController;
 
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::resources([
-        'user' => UserController::class,
-        'note' => NoteController::class
+        'users' => UserController::class,
+        'notes' => NoteController::class
     ]);
 });
