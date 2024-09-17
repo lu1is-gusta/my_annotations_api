@@ -18,24 +18,51 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function create(StoreUserRequest $request): JsonResponse
+    public function show(int $id): JsonResponse 
     {
-        $users = User::create($request->all());
+        $user = User::findOrFail($id);
+        
+        return response()->json([
+            'status' => true,
+            'user' => $user
+        ], 200);
+    }
+
+    public function store(StoreUserRequest $request): JsonResponse
+    {
+        $user = User::create($request->validated());
 
         return response()->json([
             'status' => true,
-            'message' => "User Created successfully!",
-            'users' => $users
+            'message' => "User created successfully!",
+            'user' => $user
         ], 201);
     }
 
-    public function update($id)
+    public function update(int $id, StoreUserRequest $request): JsonResponse
     {
-        
+        $user = User::findOrFail($id);
+
+        $user->update($request->validated());
+
+        return response()->json([
+            'status' => true,
+            'message' => "User updated successfully!",
+            'user' => $user
+        ], 200);
     }
 
-    public function delete($id)
+    public function destroy(int $id): JsonResponse
     {
+        $user = User::findOrFail($id);
+
+        $user->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "User successfully deleted!",
+            'user' => $user
+        ], 200);
         
     }
 }

@@ -18,9 +18,19 @@ class NoteController extends Controller
         ], 200);
     }
 
-    public function create(StoreNoteRequest $request): JsonResponse
+    public function show(int $id): JsonResponse 
     {
-        $note = Note::create($request->all());
+        $note = Note::findOrFail($id);
+        
+        return response()->json([
+            'status' => true,
+            'note' => $note
+        ], 200);
+    }
+
+    public function store(StoreNoteRequest $request): JsonResponse
+    {
+        $note = Note::create($request->validated());
 
         return response()->json([
             'status' => true,
@@ -29,13 +39,29 @@ class NoteController extends Controller
         ], 201);
     }
 
-    public function update($id)
+    public function update(int $id, StoreNoteRequest $request): JsonResponse
     {
-        
+        $note = Note::findOrFail($id);
+
+        $note->update($request->validated());
+
+        return response()->json([
+            'status' => true,
+            'message' => "Note updated successfully!",
+            'note' => $note
+        ], 200);
     }
 
-    public function delete($id)
+    public function destroy(int $id): JsonResponse
     {
-        
+        $note = Note::findOrFail($id);
+
+        $note->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Note successfully deleted!",
+            'note' => $note
+        ], 200);
     }
 }
