@@ -7,15 +7,15 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\NoteController;
 use App\Http\Middleware\BasicAuth;
 
-Route::middleware([BasicAuth::class])->group(function () { //juntar com o middleware de baixo
-    // Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    //     Route::resources([
-    //         'users' => UserController::class,
-    //         'notes' => NoteController::class
-    //     ]);
+Route::middleware([BasicAuth::class])->prefix('v1')->group(function () { 
+    Route::post('users/register', [UserController::class, 'register']); //ajustar o retorno quando acontece erro de validação
+    Route::post('users/login', [UserController::class, 'login']);
+    Route::get('users/logout', [UserController::class, 'logout']);
 
-        
-    // });
-
-    Route::post('users/register', [UserController::class, 'register']);
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::resources([
+            'users' => UserController::class,
+            'notes' => NoteController::class
+        ]);
+    });
 });

@@ -30,7 +30,7 @@ class BasicAuth
 
         } catch(Exception $error){
 
-            return $error;
+            return new Response($error);
         }
     }
 }

@@ -7,16 +7,18 @@ use App\Http\Requests\user\LoginUserRequest;
 use Illuminate\Http\JsonResponse;
 use App\Models\User;
 use App\Services\AuthService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function login(LoginUserRequest $request){
-        $loginUserData = $request->validate([]);
+    public function login(LoginUserRequest $request): JsonResponse
+    {
+        // dd('aqui');
+        $user = User::where('email',$request->email)->first();
 
-        $user = User::where('email',$loginUserData['email'])->first();
-
-        if(!$user || !Hash::check($loginUserData['password'], $user->password)){
+        if(!$user || !Hash::check($request->password, $user->password)){
             return response()->json([
                 'message' => 'Invalid Credentials'
             ],401);
@@ -27,11 +29,12 @@ class UserController extends Controller
 
         return response()->json([
             'access_token' => $token,
-        ]);
+        ], 200);
     }
 
-    public function logout(){
-        dd(auth());
+    public function logout(Request $request): JsonResponse
+    {
+        dd($request->user());
         // auth()->user()->tokens()->delete();
 
         return response()->json([
@@ -98,8 +101,20 @@ class UserController extends Controller
         
     }
 
-    public function register(StoreUserRequest $request)
+    public function register(StoreUserRequest $request): JsonResponse
     {
-        dd($request->validated(), 'aqui');
+        // dd($request->validated(), $request->name, 'aqui');
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'User Created ',
+            'user' => $user
+        ], 200);
     }
 }
