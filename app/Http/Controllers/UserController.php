@@ -15,7 +15,6 @@ class UserController extends Controller
 {
     public function login(LoginUserRequest $request): JsonResponse
     {
-        // dd('aqui');
         $user = User::where('email',$request->email)->first();
 
         if(!$user || !Hash::check($request->password, $user->password)){
@@ -34,8 +33,7 @@ class UserController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        dd($request->user());
-        // auth()->user()->tokens()->delete();
+        $request->user()->tokens()->delete();
 
         return response()->json([
             "message"=>"logged out"
@@ -62,17 +60,16 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function store(StoreUserRequest $request): JsonResponse
-    {
-        dd($request);
-        $user = User::create($request->validated());
+    // public function store(StoreUserRequest $request): JsonResponse
+    // {
+    //     $user = User::create($request->validated());
 
-        return response()->json([
-            'status' => true,
-            'message' => "User created successfully!",
-            'user' => $user
-        ], 201);
-    }
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => "User created successfully!",
+    //         'user' => $user
+    //     ], 201);
+    // }
 
     public function update(int $id, StoreUserRequest $request): JsonResponse
     {
@@ -103,8 +100,6 @@ class UserController extends Controller
 
     public function register(StoreUserRequest $request): JsonResponse
     {
-        // dd($request->validated(), $request->name, 'aqui');
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
