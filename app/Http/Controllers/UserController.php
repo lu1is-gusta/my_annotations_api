@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller

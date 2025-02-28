@@ -25,7 +25,7 @@ class NoteController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => $e->getMessage(),
-            ], $e->getCode() ?? 404);
+            ], 404);
         }
         
     }
@@ -45,22 +45,35 @@ class NoteController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => $e->getMessage()
-            ], $e->getCode() ?? 404);
+            ], 404);
         }
     }
 
     public function store(StoreNoteRequest $request): JsonResponse
     {
-        $note = Note::create([
-            $request->validated(),
-            'user_id' => Auth::id()
-        ]);
+        dd($request->validated());
+        try {
+            $note = Note::create([
+                $request->validated(),
+                'user_id' => Auth::id()
+            ]);
 
-        return response()->json([
-            'status' => true,
-            'message' => "Note Created successfully!",
-            'note' => $note
-        ], 201);
+            return response()->json([
+                'status' => true,
+                'message' => "Note Created successfully!",
+                'note' => $note
+            ], 201);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 404);
+        }
+        
+
+        
     }
 
     public function update(int $id, StoreNoteRequest $request): JsonResponse

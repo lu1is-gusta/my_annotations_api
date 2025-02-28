@@ -16,6 +16,7 @@ class BasicAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // dd($request);
         try {
             $serverAuthUser = $request->server('PHP_AUTH_USER');
             $serverAuthPassword = $request->server('PHP_AUTH_PW');
@@ -23,10 +24,10 @@ class BasicAuth
             $localAuthPassword = env('AUTH_BASIC_PASSWORD');
             
             if($serverAuthUser === $localAuthUser && $serverAuthPassword === $localAuthPassword){
-                return $next($request);
+                // return $next($request);
             }
 
-            return new Response('Unauthorized', 401, ['WWW-Authenticate' => 'Basic']);
+            // return new Response('Unauthorized', 401, ['WWW-Authenticate' => 'Basic']);
 
         } catch(Exception $error){
 
