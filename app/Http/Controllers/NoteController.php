@@ -2,35 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\NotesNotFoundException;
 use App\Http\Requests\StoreNoteRequest;
 use Illuminate\Http\JsonResponse;
 use App\Models\Note;
+use Illuminate\Support\Facades\Auth;
 
 class NoteController extends Controller
 {
     public function index(): JsonResponse
     {
-        $notes = Note::all();
+        try{
+            $notes = Note::all();
 
-        return response()->json([
-            'status' => true,
-            'notes' => $notes
-        ], 200);
+            return response()->json([
+                'status' => true,
+                'notes' => $notes
+            ], 200);
+
+        } catch(NotesNotFoundException $e){
+
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+            ], $e->getCode() ?? 404);
+        }
+        
     }
 
     public function show(int $id): JsonResponse 
     {
-        $note = Note::findOrFail($id);
+        try{
+            $note = Note::findOrFail($id);
         
-        return response()->json([
-            'status' => true,
-            'note' => $note
-        ], 200);
+            return response()->json([
+                'status' => true,
+                'note' => $note
+            ], 200);
+            
+        } catch(NotesNotFoundException $e){
+
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], $e->getCode() ?? 404);
+        }
     }
 
     public function store(StoreNoteRequest $request): JsonResponse
     {
-        $note = Note::create($request->validated());
+        $note = Note::create([
+            $request->validated(),
+            'user_id' => Auth::id()
+        ]);
 
         return response()->json([
             'status' => true,
