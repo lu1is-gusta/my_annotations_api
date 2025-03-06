@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -60,17 +59,6 @@ class UserController extends Controller
         ], 200);
     }
 
-    // public function store(StoreUserRequest $request): JsonResponse
-    // {
-    //     $user = User::create($request->validated());
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => "User created successfully!",
-    //         'user' => $user
-    //     ], 201);
-    // }
-
     public function update(int $id, StoreUserRequest $request): JsonResponse
     {
         $user = User::findOrFail($id);
@@ -108,7 +96,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'User Created ',
+            'message' => 'User Created',
             'user' => $user
         ], 200);
     }
