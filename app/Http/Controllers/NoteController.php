@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\NoteRequest;
 use Illuminate\Http\JsonResponse;
 use App\Models\Note;
+use App\Services\Response;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,19 +21,21 @@ class NoteController extends Controller
     public function index(): JsonResponse
     {
         try{
-            $notes = Note::all();
+            $notes = Note::all('teste');
 
-            return response()->json([
-                'status' => true,
-                'notes' => $notes
-            ], 200);
+            return Response::responseJsonSucess(null, $notes);
+            // return response()->json([
+            //     'status' => true,
+            //     'notes' => $notes
+            // ], 200);
             
         } catch(\Exception $e){
-            
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage(),
-            ], 404);
+            // dd($e);
+            return Response::responseJsonError($e, 500);
+            // return response()->json([
+            //     'error' => true,
+            //     'message' => $e->getMessage(),
+            // ], 404);
         }
         
     }
