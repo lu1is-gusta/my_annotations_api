@@ -2,15 +2,12 @@
 
 namespace App\Services;
 
+use App\DTO\ExceptionResponseDTO;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
 class Response 
 {
-    protected Exception $errorException = [
-
-    ];
-
     public static function responseJsonSucess(?string $message = null, $data = [], ?int $status = 200): JsonResponse
     {
         return response()->json([
@@ -22,6 +19,8 @@ class Response
 
     public static function responseJsonError(Exception $error, ?int $status = null): JsonResponse
     {
+        $exceptionDTO = new ExceptionResponseDTO($error);
+
         if(env('APP_DEBUG')){
 
             return response()->json([
@@ -34,9 +33,12 @@ class Response
             ], $status);
         }
 
-        return response()->json([
-            'error' => true,
-            'message' => $error->getMessage()
-        ], $status);
+        return response()->json(
+            $exceptionDTO->basicInformationException()
+        //     [
+        //     'error' => true,
+        //     'message' => $error->getMessage()
+        // ]
+        , $status);
     }
 }
