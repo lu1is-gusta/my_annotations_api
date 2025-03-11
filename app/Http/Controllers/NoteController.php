@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\NoteRequest;
 use Illuminate\Http\JsonResponse;
 use App\Models\Note;
+use App\Services\Response;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,17 +23,10 @@ class NoteController extends Controller
         try{
             $notes = Note::all();
 
-            return response()->json([
-                'status' => true,
-                'notes' => $notes
-            ], 200);
-            
+            return Response::responseJsonSucess(null, $notes);
+
         } catch(\Exception $e){
-            
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage(),
-            ], 404);
+            return Response::responseJsonError($e, 500);
         }
         
     }
@@ -42,17 +36,10 @@ class NoteController extends Controller
         try{
             $note = Note::findOrFail($id);
         
-            return response()->json([
-                'status' => true,
-                'note' => $note
-            ], 200);
+            return Response::responseJsonSucess(null, $note);
             
         } catch(\Exception $e){
-
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage()
-            ], 404);
+            return Response::responseJsonError($e, 500);
         }
     }
 
@@ -62,20 +49,13 @@ class NoteController extends Controller
             $data = $request->validated();
             $data['user_id'] = $this->idUserAuth;
             
-            $note = Note::create([$request->validated(), $data]);
-            
-            return response()->json([
-                'status' => true,
-                'message' => "Note Created successfully!",
-                'note' => $note
-            ], 201);
+            $note = Note::create($data);
+            $responseMessage = "Note Created successfully!";
+
+            return Response::responseJsonSucess($responseMessage, $note);
 
         } catch (\Exception $e) {
-
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage()
-            ], 404);
+            return Response::responseJsonError($e, 500);
         }
     }
 
@@ -83,21 +63,13 @@ class NoteController extends Controller
     {
         try {
             $note = Note::findOrFail($id);
-
             $note->update($request->validated());
+            $responseMessage = "Note updated successfully!";
 
-            return response()->json([
-                'status' => true,
-                'message' => "Note updated successfully!",
-                'note' => $note
-            ], 200);
+            return Response::responseJsonSucess($responseMessage, $note);
 
         } catch (\Exception $e) {
-
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage()
-            ], 404);
+            return Response::responseJsonError($e, 500);
         }
         
     }
@@ -106,21 +78,13 @@ class NoteController extends Controller
     {
         try {
             $note = Note::findOrFail($id);
-
             $note->delete();
+            $responseMessage = "Note successfully deleted!";
 
-            return response()->json([
-                'status' => true,
-                'message' => "Note successfully deleted!",
-                'note' => $note
-            ], 200);
+            return Response::responseJsonSucess($responseMessage, $note);
 
         } catch (\Exception $e) {
-
-            return response()->json([
-                'error' => true,
-                'message' => $e->getMessage()
-            ], 404);
+            return Response::responseJsonError($e, 500);
         }
     }
 }

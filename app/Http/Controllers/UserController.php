@@ -7,97 +7,106 @@ use App\Http\Requests\user\LoginUserRequest;
 use Illuminate\Http\JsonResponse;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    public function register(StoreUserRequest $request): JsonResponse
+    {
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+            $responseMessage = 'User created';
+
+            return Response::responseJsonSucess($responseMessage, $user);
+
+        } catch(\Exception $e) {
+            return Response::responseJsonError($e, 500);
+        }
+    }
+    
     public function login(LoginUserRequest $request): JsonResponse
     {
-        $user = User::where('email',$request->email)->first();
+        try {
+            $user = User::where('email',$request->email)->first();
+            $instanceAuthService = new AuthService($user, $request);
+            $token = $instanceAuthService->generateToken();
+            $responseMessage = 'Generated token';
 
-        if(!$user || !Hash::check($request->password, $user->password)){
-            return response()->json([
-                'message' => 'Invalid Credentials'
-            ],401);
+            return Response::responseJsonSucess($responseMessage, $token);
+
+        } catch(\Exception $e) {
+            return Response::responseJsonError($e, 500);
         }
-
-        $instanceAuthService = new AuthService;
-        $token = $instanceAuthService->generateToken($user);
-
-        return response()->json([
-            'access_token' => $token,
-        ], 200);
     }
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->tokens()->delete();
+        try {
+            $request->user()->tokens()->delete();
+            $responseMessage = "logged out";
 
-        return response()->json([
-            "message"=>"logged out"
-        ]);
+            return Response::responseJsonSucess($responseMessage);
+
+        } catch(\Exception $e) {
+            return Response::responseJsonError($e, 500);
+        }
     }
 
     public function index(): JsonResponse 
     {
-        $users = User::all();
+        try {
+            $users = User::all();
         
-        return response()->json([
-            'status' => true,
-            'users' => $users
-        ], 200);
+            return Response::responseJsonSucess(null, $users);
+
+        } catch(\Exception $e) {
+            return Response::responseJsonError($e, 500);
+        }
     }
 
     public function show(int $id): JsonResponse 
     {
-        $user = User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
         
-        return response()->json([
-            'status' => true,
-            'user' => $user
-        ], 200);
+            return Response::responseJsonSucess(null, $user);
+
+        } catch(\Exception $e) {
+            return Response::responseJsonError($e, 500);
+        }
     }
 
     public function update(int $id, StoreUserRequest $request): JsonResponse
     {
-        $user = User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
+            $user->update($request->validated());
+            $responseMessage = "User updated successfully!";
 
-        $user->update($request->validated());
+            return Response::responseJsonSucess($responseMessage, $user);
 
-        return response()->json([
-            'status' => true,
-            'message' => "User updated successfully!",
-            'user' => $user
-        ], 200);
+        } catch(\Exception $e) {
+            return Response::responseJsonError($e, 500);
+        }
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $user = User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+            $responseMessage = "User successfully deleted!";
 
-        $user->delete();
-
-        return response()->json([
-            'status' => true,
-            'message' => "User successfully deleted!",
-            'user' => $user
-        ], 200);
-        
-    }
-
-    public function register(StoreUserRequest $request): JsonResponse
-    {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'User Created',
-            'user' => $user
-        ], 200);
+            return Response::responseJsonSucess($responseMessage, $user);
+            
+        } catch(\Exception $e) {
+            return Response::responseJsonError($e, 500);
+        }
     }
 }
