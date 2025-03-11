@@ -63,7 +63,6 @@ class NoteController extends Controller
     {
         try {
             $note = Note::findOrFail($id);
-
             $note->update($request->validated());
             $responseMessage = "Note updated successfully!";
 
@@ -79,7 +78,6 @@ class NoteController extends Controller
     {
         try {
             $note = Note::findOrFail($id);
-
             $note->delete();
             $responseMessage = "Note successfully deleted!";
 
