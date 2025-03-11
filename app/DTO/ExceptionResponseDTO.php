@@ -30,11 +30,6 @@ class ExceptionResponseDTO
         return get_object_vars($this);
     }
 
-    public function completeInformationException(): object
-    {
-        return (object) $this;
-    }
-
     public function basicInformationException(): object
     {
         $data = ['error' => $this->error, 'message' => $this->message];
