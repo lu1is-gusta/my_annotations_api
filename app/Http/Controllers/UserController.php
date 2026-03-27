@@ -35,10 +35,10 @@ class UserController extends Controller
         try {
             $user = User::where('email',$request->email)->first();
             $instanceAuthService = new AuthService($user, $request);
-            $token = $instanceAuthService->generateToken();
+            $data = $instanceAuthService->responseCredentialsUserLogin();
             $responseMessage = 'Generated token';
 
-            return Response::responseJsonSucess($responseMessage, $token);
+            return Response::responseJsonSucess($responseMessage, $data->toArray());
 
         } catch(\Exception $e) {
             return Response::responseJsonError($e, 500);
