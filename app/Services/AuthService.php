@@ -3,16 +3,17 @@
 namespace App\Services;
 
 use App\DTO\ResponseLoginDataUserDTO;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AuthService 
 {
-    protected Model $instanceUserModel;
+    protected ?Model $instanceUserModel;
     protected Request $request;
 
-    public function __construct(Model $instanceUserModel, Request $request)
+    public function __construct(?Model $instanceUserModel, Request $request)
     {
         $this->instanceUserModel = $instanceUserModel;
         $this->request = $request;
@@ -29,7 +30,7 @@ class AuthService
     public function verifyCredentialsUser(): void
     {
         if(!$this->instanceUserModel || !Hash::check($this->request->password, $this->instanceUserModel->password)){
-            throw new \Exception('Invalid credentials', 401);
+            throw new AuthenticationException('Invalid credentials');
         }
     }
 

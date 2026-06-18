@@ -5,86 +5,53 @@ namespace App\Http\Controllers;
 use App\Http\Requests\NoteRequest;
 use Illuminate\Http\JsonResponse;
 use App\Models\Note;
-use App\Services\Response;
-use Exception;
-use Illuminate\Support\Facades\Auth;
+use App\Services\ApiResponse;
+use Illuminate\Http\Request;
 
 class NoteController extends Controller
 {
-    protected $idUserAuth;
-
-    public function __construct()
+    public function index(Request $request): JsonResponse
     {
-        $this->idUserAuth = Auth::id();
+        $notes = $request->user()->note()->get();
+
+        return ApiResponse::responseJsonSuccess(null, $notes);
     }
 
-    public function index(): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
-        try{
-            $notes = Note::all();
+        $note = Note::findOrFail($id);
+        $this->authorize('view', $note);
 
-            return Response::responseJsonSucess(null, $notes);
-
-        } catch(\Exception $e){
-            return Response::responseJsonError($e, 500);
-        }
-        
-    }
-
-    public function show(int $id): JsonResponse 
-    {
-        try{
-            $note = Note::findOrFail($id);
-        
-            return Response::responseJsonSucess(null, $note);
-            
-        } catch(\Exception $e){
-            return Response::responseJsonError($e, 500);
-        }
+        return ApiResponse::responseJsonSuccess(null, $note);
     }
 
     public function store(NoteRequest $request): JsonResponse
     {
-        try {
-            $data = $request->validated();
-            $data['user_id'] = $this->idUserAuth;
-            
-            $note = Note::create($data);
-            $responseMessage = "Note Created successfully!";
+        $data = $request->validated();
+        $data['user_id'] = $request->user()->id;
 
-            return Response::responseJsonSucess($responseMessage, $note);
+        $note = Note::create($data);
 
-        } catch (\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
+        return ApiResponse::responseJsonSuccess('Note Created successfully!', $note, 201);
     }
 
-    public function update(int $id, NoteRequest $request): JsonResponse
+    public function update(NoteRequest $request, int $id): JsonResponse
     {
-        try {
-            $note = Note::findOrFail($id);
-            $note->update($request->validated());
-            $responseMessage = "Note updated successfully!";
+        $note = Note::findOrFail($id);
+        $this->authorize('update', $note);
 
-            return Response::responseJsonSucess($responseMessage, $note);
+        $note->update($request->validated());
 
-        } catch (\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
-        
+        return ApiResponse::responseJsonSuccess('Note updated successfully!', $note);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
-        try {
-            $note = Note::findOrFail($id);
-            $note->delete();
-            $responseMessage = "Note successfully deleted!";
+        $note = Note::findOrFail($id);
+        $this->authorize('delete', $note);
 
-            return Response::responseJsonSucess($responseMessage, $note);
+        $note->delete();
 
-        } catch (\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
+        return ApiResponse::responseJsonSuccess('Note successfully deleted!');
     }
 }

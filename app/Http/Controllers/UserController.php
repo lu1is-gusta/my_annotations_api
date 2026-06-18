@@ -3,110 +3,67 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\user\StoreUserRequest;
+use App\Http\Requests\user\UpdateUserRequest;
 use App\Http\Requests\user\LoginUserRequest;
 use Illuminate\Http\JsonResponse;
 use App\Models\User;
 use App\Services\AuthService;
-use App\Services\Response;
+use App\Services\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     public function register(StoreUserRequest $request): JsonResponse
     {
-        try {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
-            $responseMessage = 'User created';
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password,
+        ]);
 
-            return Response::responseJsonSucess($responseMessage, $user);
-
-        } catch(\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
+        return ApiResponse::responseJsonSuccess('User created', $user, 201);
     }
-    
+
     public function login(LoginUserRequest $request): JsonResponse
     {
-        try {
-            $user = User::where('email',$request->email)->first();
-            $instanceAuthService = new AuthService($user, $request);
-            $data = $instanceAuthService->responseCredentialsUserLogin();
-            $responseMessage = 'Generated token';
+        $user = User::where('email', $request->email)->first();
+        $data = (new AuthService($user, $request))->responseCredentialsUserLogin();
 
-            return Response::responseJsonSucess($responseMessage, $data->toArray());
-
-        } catch(\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
+        return ApiResponse::responseJsonSuccess('Generated token', $data->toArray());
     }
 
     public function logout(Request $request): JsonResponse
     {
-        try {
-            $request->user()->tokens()->delete();
-            $responseMessage = "logged out";
+        $request->user()->tokens()->delete();
 
-            return Response::responseJsonSucess($responseMessage);
-
-        } catch(\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
+        return ApiResponse::responseJsonSuccess('logged out');
     }
 
-    public function index(): JsonResponse 
+    public function show(Request $request, int $id): JsonResponse
     {
-        try {
-            $users = User::all();
-        
-            return Response::responseJsonSucess(null, $users);
+        $user = User::findOrFail($id);
+        $this->authorize('view', $user);
 
-        } catch(\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
+        return ApiResponse::responseJsonSuccess(null, $user);
     }
 
-    public function show(int $id): JsonResponse 
+    public function update(UpdateUserRequest $request, int $id): JsonResponse
     {
-        try {
-            $user = User::findOrFail($id);
-        
-            return Response::responseJsonSucess(null, $user);
+        $user = User::findOrFail($id);
+        $this->authorize('update', $user);
 
-        } catch(\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
+        $user->update($request->validated());
+
+        return ApiResponse::responseJsonSuccess('User updated successfully!', $user);
     }
 
-    public function update(int $id, StoreUserRequest $request): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
-        try {
-            $user = User::findOrFail($id);
-            $user->update($request->validated());
-            $responseMessage = "User updated successfully!";
+        $user = User::findOrFail($id);
+        $this->authorize('delete', $user);
 
-            return Response::responseJsonSucess($responseMessage, $user);
+        $user->delete();
 
-        } catch(\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
-    }
-
-    public function destroy(int $id): JsonResponse
-    {
-        try {
-            $user = User::findOrFail($id);
-            $user->delete();
-            $responseMessage = "User successfully deleted!";
-
-            return Response::responseJsonSucess($responseMessage, $user);
-            
-        } catch(\Exception $e) {
-            return Response::responseJsonError($e, 500);
-        }
+        return ApiResponse::responseJsonSuccess('User successfully deleted!');
     }
 }
