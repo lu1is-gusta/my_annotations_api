@@ -7,6 +7,54 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Docker
+
+Ambiente local com Apache, PHP 8.2, MySQL 8 e Composer.
+
+### Pré-requisitos
+
+- Docker e Docker Compose instalados
+
+### Configuração do `.env`
+
+Ajuste as variáveis abaixo no arquivo `.env` para uso com Docker:
+
+```env
+DB_HOST=mysql
+APP_URL=http://localhost:8080
+```
+
+As demais variáveis de banco (`DB_CONNECTION`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `DB_PORT`) devem permanecer como já configuradas.
+
+### Subir o ambiente
+
+```bash
+docker compose up -d --build
+```
+
+### Instalar dependências e preparar a aplicação
+
+```bash
+docker compose exec app composer install
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+```
+
+A API ficará disponível em [http://localhost:8080](http://localhost:8080).
+
+### Comandos úteis
+
+```bash
+# Composer
+docker compose exec app composer <comando>
+
+# Artisan
+docker compose exec app php artisan <comando>
+
+# Parar os containers
+docker compose down
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
